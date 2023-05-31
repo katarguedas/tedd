@@ -1,0 +1,196 @@
+:root {
+  --lila: #e477f2;
+  --blue: #a2aef2;
+  --dark-blue: #667bf1;
+  --green1: #b4f288;
+  --green2: #d5f26b;
+  --light-orange: #ffcb9e;
+  --orange: #f2a25c;
+  --dark-orange: #d76807;
+  --grey: #ccc;
+}
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.site-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  height: 165px;
+  /* background-image:url(img/20171001_121503.jpg); */
+  background-image: url('../img/annie-spratt-ktny-unsplash__mod.jpg');
+  color: #fff;
+  background-repeat: no-repeat;
+  margin: 0;
+  font-family: Verdana, Tahoma, sans-serif;
+}
+
+.header-h1,
+.header-h2,
+.header-h3 {
+  display: flex;
+  justify-content: center;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  padding: 1.25rem;
+  margin: 0rem 1rem 0.5rem -3rem;
+}
+
+header h2 {
+  font-size: 1.75rem;
+  margin: 0rem 1rem 1rem 6rem;
+}
+header p {
+  display: flex;
+  color: white;
+  font-size: 0.65rem;
+  width: 250px;
+  position: absolute;
+  right: -4rem;
+  margin: 0rem;
+  align-items: baseline;
+}
+main {
+  flex: 1;
+}
+
+.landingpage-content-wrapper {
+  width: 80%;
+  display: flex;
+  flex-direction: row;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landingpage-column {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 50%;
+  align-items: center;
+  margin-left: 6rem;
+  margin-right: 6rem;
+}
+
+.arrow-down {
+  font-size: 3rem;
+  margin: 1rem;
+}
+
+a {
+  margin: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+a.start {
+  color: var(--green2);
+  background-color: var(--lila);
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  font-family: Cambria, Cochin, Times, serif;
+}
+
+.main-navigation-ul {
+  width: 80%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.main-navigation-li {
+  font-family: Verdana, Tahoma, sans-serif;
+  letter-spacing: 1px;
+  text-align: center;
+  list-style: none;
+  width: 12rem;
+  padding: 0.35em 0.75em;
+  margin: 0.25rem 1.5rem;
+  background-color: var(--light-orange);
+  border: 0.05rem solid var(--light-orange);
+  border-radius: 0.05rem;
+}
+.main-navigation-li:hover {
+  background-color: var(--orange);
+}
+.main-navigation-li-active {
+  background-color: var(--orange);
+}
+
+.sub-navigation-ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.sub-navigation-li {
+  font-family: Verdana, Tahoma, sans-serif;
+  text-align: center;
+  list-style: none;
+  width: 7rem;
+  padding: 0.35em 0.75em;
+  margin: 0.25rem 1.5rem;
+  background-color: var(--blue);
+  border: 0.05rem solid var(--blue);
+  border-radius: 0.05rem;
+}
+.sub-navigation-li:hover {
+  background-color: var(--dark-blue);
+}
+
+footer {
+  height: 3rem;
+  color: var(--green1);
+  background-image: url('../img/annie-spratt-ktny-unsplash__mod.jpg');
+}
+
+@media only screen and (max-width: 760px) {
+  body {
+    font-size: 0.9em;
+  }
+  header {
+    height: 135px;
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+    padding: 0.9rem;
+    margin: 0rem 0.6rem 0.5rem -1rem;
+  }
+
+  header h2 {
+    font-size: 1.25rem;
+    margin: 0rem 1rem 1rem 2rem;
+  }
+
+  .landingpage-content-wrapper {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-navigation-li {
+    font-size: 0.9rem;
+    width: 7.5em;
+    padding: 0.15em 0.5em;
+    margin: 0.15em 1em;
+  }
+}
