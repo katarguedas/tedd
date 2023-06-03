@@ -11,25 +11,38 @@
 
 <body>
   <div class="site-wrapper">
-    <?php include 'views/components/header.php'; ?>
+    <header>
+      <div class="header-left-side">
+        <a href="./index.php"><img src="img/home1.png" alt="home" class="home-icon" width="30px"
+            height="30px"></a>
+      </div>
+      <div class="header-title">
+        <h1 class="header-h1">Teste Dein Deutsch</h1>
+        <h2 class="header-h2">kleine Übungen für zwischendurch</h2>
+      </div>
+      <div class="header-right-side">
+        <a class="login-link" href="">login</a>
+      </div>
+    </header>
     <main>
       <div class="landingpage-content-wrapper">
         <div class="landingpage-column">
           <p>Keine Lust auf Benutzernamen und Passwörter?<br>
             Hier geht's direkt zu den Übungen!</p>
-          <!-- <p class="arrow-down"> &#8681;</p> -->
-          <a href="views/uebungen.php" class="start" >Start!</a>
+          <a href="uebungen.php" class="start">Start!</a>
         </div>
         <div class="landingpage-column">
           <p>Du hast ein Konto?</p>
-          <a  >zum Login</a>
+          <a href="login.php">zum Login</a>
           <p>Lege ein Konto an und speichere Deinen Wissensstand.</p>
           <button>zur Registrierung</button>
         </div>
 
       </div>
     </main>
-    <?php include 'views/components/footer.php'; ?>
+    <footer>
+      &#169 2023
+    </footer>
   </div>
 </body>
 

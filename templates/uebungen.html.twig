@@ -5,19 +5,19 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="../css/styles.css">
-  <title>Document</title>
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+  <title>{{titel}}</title>
 </head>
 
 <body>
   <div class="site-wrapper">
-    <?php include 'components/header.php'; ?>
+  {{include (incHeader)}}
     <main>
       <nav>
         <ul class="main-navigation-ul">
-          <li class="main-navigation-li main-navigation-li-active" >DER, DIE, DAS</li>
-          <li class="main-navigation-li" >SINGULAR/PLURAL</li>
-          <li class="main-navigation-li" >LÜCKENTEXTE</li>
+          <li class="main-navigation-li main-navigation-li-active" ><a href="uebungen/artikel.php" >DER, DIE, DAS</a></li>
+          <li class="main-navigation-li" ><a href="singular-plural.php">SINGULAR/PLURAL</a></li>
+          <li class="main-navigation-li" ><a href="lueckentexte.php">LÜCKENTEXTE</a></li>
         </ul>
       </nav>
       <div>
@@ -28,7 +28,7 @@
         </ul>
       </div>
     </main>
-    <?php include 'components/footer.php'; ?>
+    {{include (incFooter)}}
   </div>
 </body>
 
