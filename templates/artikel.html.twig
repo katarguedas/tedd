@@ -41,16 +41,18 @@
               <form method="POST" action="{{ formAction }}">
                 {% for item in data %}
                   <div class="article-item">
-                    <select id="artikel" name="{{ item.id }}">
+                    {% if case == 3 %}
+                      {{ item.result == true ? '&#10004' : '&#10006' }} 
+                    {% endif %}
+                    <select id="artikel" name="{{ 'artikel_' ~ item.id }}">
+                    {% set selected = 'selected' %}
                       {% for option in options %}
-                        <option value="{{ option }}">{{ option }}</option>
+                        <option value="{{ option }}" {{ item.userInput == option ? selected : '' }}>{{ option }}</option>
                       {% endfor %}
                     </select>
-
                     <span class="nomen-item">{{ item.nomen }}</span>
                   </div>
-                  {% endfor %}
-
+                {% endfor %}
                   {% for thema in themen %}
                     {% if thema.activeClass != '' %}
                     <input type="hidden" name="urlId" value="{{ thema.thema_id }}" >

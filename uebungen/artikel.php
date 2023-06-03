@@ -4,6 +4,7 @@ require '../config.php';
 require '../helpers/functions.php';
 
 # ---- Datenbankverbindung ------------------
+
 require '../helpers/db-connection.php';
 
 # -------------------------------------------
@@ -20,9 +21,7 @@ $twig = new \Twig\Environment($loader);
 # ------- Variablen fürs Template -----------
 
 $formAction = $_SERVER['SCRIPT_NAME'];
-
 $options = ['--', 'der', 'die', 'das'];
-
 $case = 0;
 
 # -------------------------------------------
@@ -31,18 +30,12 @@ $case = 0;
 # aller erster Seitenaufruf, noch keine Auswahl eines Themas erfolgt
 # => Themen werden aufgelistget => zweite Nav
 # -------------------------------------------------------------------
-echo '<br>';
-echo '<br>';
-var_dump($_REQUEST);
-echo '<br>';
-echo '<br>';
+
 echo 'ist GET gesetzt?';
 var_dump($_GET);
 echo '<br>';
-echo '<br>';
 echo 'ist POST gesetzt?';
 var_dump($_POST);
-echo '<br>';
 echo '<br>';
 
 if (empty($_GET) && empty($_POST)) {
@@ -51,6 +44,7 @@ if (empty($_GET) && empty($_POST)) {
 
   # Themen aus der Datenbank holen
   $themen = getThemes($mysqli);
+  $data[] = [];
 }
 
 #--------------------------------------------------------------
@@ -60,30 +54,32 @@ if (empty($_GET) && empty($_POST)) {
 # => die Übung startet
 # -------------------------------------------------------------
 # -- Daten per GET empfangen
-# Thema-id 
-$thema_id = filter_input(INPUT_GET, 'thema_id');
-# Hashwert (Prüfsumme) 
-$gethash = filter_input(INPUT_GET, 'hash');
 
-# check, ob thema-id nicht manipuliert wurde
-if (isset($thema_id) && hash(MY_ALGO, $thema_id . MY_SALT) != $gethash) {
-  $thema_id = null;
+if (!empty($_GET) && empty($_POST)) {
+  $case = 2;
+  # Thema-id 
+  $thema_id = filter_input(INPUT_GET, 'thema_id');
+  # Hashwert (Prüfsumme) 
+  $gethash = filter_input(INPUT_GET, 'hash');
+
+  # check, ob thema-id nicht manipuliert wurde
+  if (isset($thema_id) && hash(MY_ALGO, $thema_id . MY_SALT) != $gethash) {
+    $thema_id = null;
+  }
+
+  # --- Übungsdaten aus der Datenbank holen
+  $themen = getThemes($mysqli, $thema_id);
+
+  if (isset($thema_id)) {
+
+    $data = getDataWithThemeId($mysqli, $thema_id);
+
+    // echo '<br>';
+    // var_dump($data);
+  } else {
+    $data[] = [];
+  }
 }
-
-# --- Übungsdaten aus der Datenbank holen
-$themen = getThemes($mysqli, $thema_id);
-echo 'Thema_ID: '.$thema_id;
-if (isset($thema_id)) {
-
-  $data = getDataWithId($mysqli, $thema_id);
-
-  echo '<br>';
-
-  var_dump($data);
-} else {
-  $data[] = [];
-}
-
 # -------------------------------------------------------------
 # Fall 3:
 # 'prüfen' Button geklickt: 
@@ -91,59 +87,49 @@ if (isset($thema_id)) {
 # - im hidden input kommen die ids der aktuellen Übung,
 # => Auswertung der Daten und Darstellung des Ergebnisses für den User
 # -------------------------------------------------------------
-$button = myPost('button', 20);
 
-if ($button === 'check') {
-  echo 'Button prüfen geklickt';
-  echo '<br>';
+if (empty($_GET) && !empty($_POST) && myPost('button', 20) === 'check') {
+  $case = 3;
 
   $thema_id = myPost('urlId', 10);
 
-  echo '<br>';
-  echo '<br>';
+  # Hole Themen für die zweite Navigation, kennzeichne das ausgewählte Thema
+  $themen = getThemes($mysqli, $thema_id);
 
-  foreach ($_POST as $id => $value) {
-    echo '';
-    $currentIds[] = $id;
-    $currentInput[] = $value;
-    $currentValues[] = [
-      'id' => $id,
-      'userInput' => $value
+  // echo '<br>';
+  // echo '<br>';
+
+  # Hole aus $_POST die User-Eingabe sowie die aktuellen Artikel-Ids
+  $currentValues = getUserInput();
+
+  // echo 'Current Values: ';
+  // echo '<br>';
+  // var_dump($currentValues);
+  // echo '<br>';
+
+  foreach ($currentValues as $item) {
+    $dataFromDB = getNomenDataById($mysqli, $item['id']);
+    $userResult = checkUserInput($item['userInput'], $dataFromDB['artikel']);
+
+    $data[] = [
+      'artikel' => $dataFromDB['artikel'],
+      'nomen' => $dataFromDB['nomen'],
+      'id' => (int) $item['id'],
+      'userInput' => $item['userInput'],
+      'result' => $userResult
     ];
   }
 
-  function checkUserInput($currentValues) {
-
-  }
-
-  echo '<br>';
-  echo 'currentValues: ';
-  var_dump($currentValues);
-  echo '<br>';
-  echo '<br>';
-
-  echo 'ids: ';
-  echo '<br>';
-  var_dump($currentIds);
-
-  echo '<br>';
-  echo 'input: ';
-  echo '<br>';
-  var_dump($currentInput);
-
-
-  $themen = getThemes($mysqli, $thema_id);
-
-  if (isset($thema_id)) {
-  $data = getDataWithId($mysqli, $thema_id);
-} else {
-  $data[] = [];
-}
+  // echo '<br>';
+  // echo "....DATA: ..";
+  // print_r($data);
 
   # -- daten prüfen --------
 
-
 }
+
+echo '<br>';
+
 
 # -------------------------------------------------------------
 # Fall 4:
@@ -152,7 +138,23 @@ if ($button === 'check') {
 # - die User-Eingabe wird 'gelöscht' => gleiche Übung ohne Auswahl
 # -------------------------------------------------------------
 
+if (empty($_GET) && !empty($_POST) && myPost('button', 20) === 'reset') {
+  $case = 4;
+  $thema_id = myPost('urlId', 10);
+  $themen = getThemes($mysqli, $thema_id);
 
+  $currentValues = getUserInput();
+
+  foreach ($currentValues as $item) {
+    $dataFromDB = getNomenDataById($mysqli, $item['id']);
+    $data[] = [
+      'artikel' => $dataFromDB['artikel'],
+      'nomen' => $dataFromDB['nomen'],
+      'id' => (int) $item['id'],
+    ];
+  }
+
+}
 
 
 # ---- Formulardaten empfangen --------------
