@@ -4,6 +4,7 @@ function myPost(string $name, int $length = 50)
   return trim(substr(filter_input(INPUT_POST, $name), 0, $length));
 }
 
+//-------------------------------------------------------------------
 
 /**
  * getThemes: holt die verfügbaren Themen (Kategorien) aus der Datenbank,
@@ -29,7 +30,7 @@ function getThemes($mysqli, $thema_id = -1)
       $activeClass = '';
     }
 
-    # Hash-Wert aus AbteilungsNr generieren
+    # Hash-Wert aus thema_id generieren
     $hash = hash(MY_ALGO, $row['id'] . MY_SALT);
 
     # ---mehrdimensionaler Array für die Navigation ---------
@@ -102,12 +103,17 @@ function getNomenDataById($mysqli, $id)
 // ---------------------------------------------------
 
 
+/**
+ * getUserInput Holt Daten aus $_POST, prüft diese, wenn sie mit 'Artikel_' beginnen;
+ *  speichert diese sowie die dazugehörigen Werte (User-Einbabe) 
+ * @return array<array> Array, enthält die Artikel-Ids und die Usereingabe
+ */
 function getUserInput()
 {
   foreach ($_POST as $id => $value) {
-    if (str_starts_with($id, 'artikel_')) {
+    if (str_starts_with($id, 'artikel_') && is_int((int) substr($id, 8)) && ((int) substr($id, 8)) > 0) {
       $currentValues[] = [
-        'id' => substr($id, 8),
+        'id' => (int) substr($id, 8),
         'userInput' => $value
       ];
     }
@@ -131,4 +137,29 @@ function checkUserInput($userInput, $artikel)
     return true;
   else
     return false;
+}
+
+
+function login_check()
+{
+  session_start();
+  if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+
+function logout()
+{
+  # session übernehmen
+  session_start();
+
+  # session-daten löschen
+  session_destroy();
+
+  #ggf. session-cookie löschen und zwar so wie er gesetzt wurde(Path)
+  setcookie('PHPSESSID', '', 0, '/');
+
 }

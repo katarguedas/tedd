@@ -1,10 +1,10 @@
 <?php 
 
-require 'config.php';
+require_once 'config.php';
 
 
-$headerPath = './components/header.php';
-$footerPath = './components/footer.php';
+$headerPath = './components/header.html.twig';
+$footerPath = './components/footer.html.twig';
 
 #----------- T W I G -----------------------
 

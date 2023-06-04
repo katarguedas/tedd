@@ -11,21 +11,16 @@
 
 <body>
   <div class="site-wrapper">
-  {{include (incHeader)}}
+  {% include (incHeader) with {'username': username, 'path' : './'} %}
     <main>
       <nav>
         <ul class="main-navigation-ul">
-          <li class="main-navigation-li main-navigation-li-active" ><a href="uebungen/artikel.php" >DER, DIE, DAS</a></li>
+          <li class="main-navigation-li" ><a href="uebungen/artikel.php" >DER,&nbspDIE,&nbspDAS</a></li>
           <li class="main-navigation-li" ><a href="singular-plural.php">SINGULAR/PLURAL</a></li>
           <li class="main-navigation-li" ><a href="lueckentexte.php">LÜCKENTEXTE</a></li>
         </ul>
       </nav>
       <div>
-      <ul class="sub-navigation-ul">
-          <li class="sub-navigation-li" >test</li>
-          <li class="sub-navigation-li" >...</li>
-          <li class="sub-navigation-li" >...</li>
-        </ul>
       </div>
     </main>
     {{include (incFooter)}}

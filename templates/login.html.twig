@@ -5,15 +5,42 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="../css/styles.css">
-  <title>Login</title>
+  <link rel="stylesheet" type="text/css" href="./css/styles.css">
+  <title>{{titel}}</title>
 </head>
 
 <body>
   <div class="site-wrapper">
-    {{include (incHeader)}}
+    <header>
+      <div class="header-left-side">
+        <a href="./index.php"><img src="img/home1.png" alt="home" class="home-icon" width="30px"
+            height="30px"></a>
+      </div>
+      <div class="header-title">
+        <h1 class="header-h1">Teste Dein Deutsch</h1>
+        <h2 class="header-h2">kleine Übungen für zwischendurch</h2>
+      </div>
+      <div class="header-right-side">
+        <a class="login-link" href="login.php">login</a>
+      </div>
+    </header>
     <main>
+    <h1 align="center">Login</h1>
+    <div class="login">
+      <form class="login-form" method="POST" action="{{ formAction }}">
+        <section id="section_input">
+          <label class="form_label" for="e-mail">e-mail</label>
+          <input class="form_input form_input_login" type="e-amil" name="e-mail" id="e-mail" maxlength="50">
 
+          <label class="form_label" for="pwd">Passwort</label>
+          <input class="form_input form_input_login" type="password" name="pwd" id="pwd" maxlength="25">
+        </section>
+
+          <section id="section_input">
+            <button class="" type="submit" name="button" value="login">Login</button>
+          </section>
+    </form>
+    </div>
 
     </main>
      {{include (incFooter)}}

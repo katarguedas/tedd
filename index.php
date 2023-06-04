@@ -1,3 +1,8 @@
+<?php
+require_once './helpers/functions.php';
+!empty($_GET) ? $logout = $_GET['logout'] : $logout=false;
+($logout == true) ? logout() : null;
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,15 +18,14 @@
   <div class="site-wrapper">
     <header>
       <div class="header-left-side">
-        <a href="./index.php"><img src="img/home1.png" alt="home" class="home-icon" width="30px"
-            height="30px"></a>
+        <a href="./index.php"><img src="img/home1.png" alt="home" class="home-icon" width="30px" height="30px"></a>
       </div>
       <div class="header-title">
         <h1 class="header-h1">Teste Dein Deutsch</h1>
         <h2 class="header-h2">kleine Übungen für zwischendurch</h2>
       </div>
       <div class="header-right-side">
-        <a class="login-link" href="">login</a>
+        <a class="login-link" href="login.php">login</a>
       </div>
     </header>
     <main>

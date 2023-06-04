@@ -9,5 +9,5 @@ spl_autoload_register('loadClass');
 
 
 # Hashwerte
-const MY_ALGO = 'md5';
+const MY_ALGO = 'sha1';
 const MY_SALT = 'zrayop%?udi';

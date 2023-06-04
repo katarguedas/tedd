@@ -1,16 +1,16 @@
 <?php
 
-require '../config.php';
-require '../helpers/functions.php';
+require_once '../config.php';
+require_once '../helpers/functions.php';
 
 # ---- Datenbankverbindung ------------------
 
-require '../helpers/db-connection.php';
+require_once '../helpers/db-connection.php';
 
 # -------------------------------------------
 
-$headerPath = './components/header.php';
-$footerPath = './components/footer.php';
+$headerPath = './components/header.html.twig';
+$footerPath = './components/footer.html.twig';
 
 #----------- T W I G ------------------------
 
@@ -23,6 +23,12 @@ $twig = new \Twig\Environment($loader);
 $formAction = $_SERVER['SCRIPT_NAME'];
 $options = ['--', 'der', 'die', 'das'];
 $case = 0;
+$message = '';
+
+$username='';
+if(login_check()) {
+  $username = $_SESSION['name'];
+}
 
 # -------------------------------------------
 
@@ -31,18 +37,18 @@ $case = 0;
 # => Themen werden aufgelistget => zweite Nav
 # -------------------------------------------------------------------
 
-echo 'ist GET gesetzt?';
-var_dump($_GET);
-echo '<br>';
-echo 'ist POST gesetzt?';
-var_dump($_POST);
-echo '<br>';
+// echo 'ist GET gesetzt?';
+// var_dump($_GET);
+// echo '<br>';
+// echo 'ist POST gesetzt?';
+// var_dump($_POST);
+// echo '<br>';
 
 if (empty($_GET) && empty($_POST)) {
-  echo 'GET und POST sind empty';
+  // echo 'GET und POST sind empty';
   $case = 1;
 
-  # Themen aus der Datenbank holen
+  # --- Daten für die Themen-Navigation aus der Datenbank holen
   $themen = getThemes($mysqli);
   $data[] = [];
 }
@@ -58,28 +64,28 @@ if (empty($_GET) && empty($_POST)) {
 if (!empty($_GET) && empty($_POST)) {
   $case = 2;
   # Thema-id 
-  $thema_id = filter_input(INPUT_GET, 'thema_id');
+  $thema_id = (int) filter_input(INPUT_GET, 'thema_id');
   # Hashwert (Prüfsumme) 
   $gethash = filter_input(INPUT_GET, 'hash');
 
   # check, ob thema-id nicht manipuliert wurde
   if (isset($thema_id) && hash(MY_ALGO, $thema_id . MY_SALT) != $gethash) {
     $thema_id = null;
+    $case = 1; // damit wird das Formular nicht abgebildet
+    $message = 'Bitte wähle ein Thema aus';
   }
 
-  # --- Übungsdaten aus der Datenbank holen
+  # Daten für die Themen-Navigation aus der Datenbank holen,
+  # wenn $thema_id gesetzt, wird das gewählte Thema gehighlighted
   $themen = getThemes($mysqli, $thema_id);
 
   if (isset($thema_id)) {
-
     $data = getDataWithThemeId($mysqli, $thema_id);
-
-    // echo '<br>';
-    // var_dump($data);
   } else {
     $data[] = [];
   }
 }
+
 # -------------------------------------------------------------
 # Fall 3:
 # 'prüfen' Button geklickt: 
@@ -88,25 +94,20 @@ if (!empty($_GET) && empty($_POST)) {
 # => Auswertung der Daten und Darstellung des Ergebnisses für den User
 # -------------------------------------------------------------
 
-if (empty($_GET) && !empty($_POST) && myPost('button', 20) === 'check') {
+if (empty($_GET) && !empty($_POST) && myPost('button', 5) === 'check') {
   $case = 3;
 
-  $thema_id = myPost('urlId', 10);
+  # Daten per POST empfangen
+  $thema_id = (int) myPost('urlId', 10);
 
-  # Hole Themen für die zweite Navigation, kennzeichne das ausgewählte Thema
+  # Daten für die Themen-Navigation aus der Datenbank holen,
+  # wenn $thema_id gesetzt, wird das gewählte Thema gehighlighted
   $themen = getThemes($mysqli, $thema_id);
 
-  // echo '<br>';
-  // echo '<br>';
-
-  # Hole aus $_POST die User-Eingabe sowie die aktuellen Artikel-Ids
+  # Prüfe die User-Eingabe für Artikel und hole sie sowie die aktuellen Artikel-Ids aus $_POST:
   $currentValues = getUserInput();
 
-  // echo 'Current Values: ';
-  // echo '<br>';
-  // var_dump($currentValues);
-  // echo '<br>';
-
+  # Hole mit der (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
   foreach ($currentValues as $item) {
     $dataFromDB = getNomenDataById($mysqli, $item['id']);
     $userResult = checkUserInput($item['userInput'], $dataFromDB['artikel']);
@@ -120,16 +121,7 @@ if (empty($_GET) && !empty($_POST) && myPost('button', 20) === 'check') {
     ];
   }
 
-  // echo '<br>';
-  // echo "....DATA: ..";
-  // print_r($data);
-
-  # -- daten prüfen --------
-
 }
-
-echo '<br>';
-
 
 # -------------------------------------------------------------
 # Fall 4:
@@ -138,13 +130,15 @@ echo '<br>';
 # - die User-Eingabe wird 'gelöscht' => gleiche Übung ohne Auswahl
 # -------------------------------------------------------------
 
-if (empty($_GET) && !empty($_POST) && myPost('button', 20) === 'reset') {
+if (empty($_GET) && !empty($_POST) && myPost('button', 5) === 'reset') {
   $case = 4;
-  $thema_id = myPost('urlId', 10);
+  $thema_id = (int) myPost('urlId', 10);
   $themen = getThemes($mysqli, $thema_id);
 
+  # Prüfe die User-Eingabe für Artikel und hole sie sowie die aktuellen Artikel-Ids aus $_POST:
   $currentValues = getUserInput();
 
+  # Hole mit der (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
   foreach ($currentValues as $item) {
     $dataFromDB = getNomenDataById($mysqli, $item['id']);
     $data[] = [
@@ -153,21 +147,24 @@ if (empty($_GET) && !empty($_POST) && myPost('button', 20) === 'reset') {
       'id' => (int) $item['id'],
     ];
   }
-
 }
 
 
-# ---- Formulardaten empfangen --------------
+# -------------------------------------------------------------
+# Fall x:
+# keiner der vier oben genannten fälle trifft zu
+# => folgende Daten werden gesetzt, um die Themen-Navigation 
+# ohne Formular abzubilden
 
 
-# ---- Formulardaten prüfen -----------------
-
-
-# --- Formulardaten verarbeiten -------------
-
+if ($case !== 1 && $case !== 2 && $case !== 3 && $case !== 4) {
+  $themen = getThemes($mysqli);
+  $data[] = [];
+  $case = 1;
+  $message = 'Bitte wähle ein Thema aus.';
+}
 
 # -------------------------------------------
-
 
 
 # --- Datenbankverbindung schließen --------
@@ -176,18 +173,12 @@ mysqli_close($mysqli);
 
 #-------------------------------------------
 
-$headerPath = './components/header.php';
-$footerPath = './components/footer.php';
-
-#----------- T W I G -----------------------
-
-$loader = new \Twig\Loader\FilesystemLoader('../templates');
-$twig = new \Twig\Environment($loader);
 
 
 #-------- Template rendern ------------------
 
 echo $twig->render('/artikel.html.twig', [
+  'username' => $username,
   'case' => $case,
   'title' => 'der, die, das',
   'incHeader' => $headerPath,
@@ -196,5 +187,6 @@ echo $twig->render('/artikel.html.twig', [
   'formAction' => $formAction,
   'options' => $options,
   'data' => $data,
-  'count' => count($data)
+  'count' => count($data),
+  'message' => $message,
 ]);
