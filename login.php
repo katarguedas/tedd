@@ -9,18 +9,20 @@ require_once './helpers/db-connection.php';
 
 # -------------------------------------------
 
-$headerPath = './components/header.php';
-$footerPath = './components/footer.php';
-
-#----------- T W I G ------------------------
-
-$loader = new \Twig\Loader\FilesystemLoader('./templates');
-$twig = new \Twig\Environment($loader);
-# -------------------------------------------
+$headerPath = './components/header.html.twig';
+$footerPath = './components/footer.html.twig';
 
 # ------- Variablen fürs Template -----------
 
 $formAction = $_SERVER['SCRIPT_NAME'];
+
+#------------------
+# User eingeloggt?'
+
+$username='';
+if(login_check()) {
+  $username = $_SESSION['name'];
+}
 
 # ------ Formulardaten empfangen ------------
 
@@ -59,9 +61,17 @@ if ($button == 'login') {
   }
 }
 
+#----------- T W I G ------------------------
+
+$loader = new \Twig\Loader\FilesystemLoader('./templates');
+$twig = new \Twig\Environment($loader);
+# -------------------------------------------
+
+
 #-------- Template rendern ------------------
 
 echo $twig->render('login.html.twig', [
+  'username' => $username,
   'titel' => 'Login',
   'incHeader' => $headerPath,
   'incFooter' => $footerPath,

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+  <title>{{titel}}</title>
+</head>
+
+<body>
+  <div class="site-wrapper">
+      {% include (incHeader) with {'username': username, 'path' : './'} %}
+    <main>
+      <div class="landingpage-content-wrapper">
+        <div class="landingpage-column">
+          <p>Keine Lust auf Benutzernamen und Passwörter?<br>
+            Hier geht's direkt zu den Übungen!</p>
+          <a href="uebungen.php" class="start">Start!</a>
+        </div>
+        <div class="landingpage-column">
+          <p>Du hast ein Konto?</p>
+          <a href="login.php">zum Login</a>
+          <p>Lege ein Konto an und speichere Deinen Wissensstand.</p>
+          <button>zur Registrierung</button>
+        </div>
+
+      </div>
+    </main>
+    {{include (incFooter)}}
+  </div>
+</body>
+
+</html>

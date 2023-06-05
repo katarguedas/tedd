@@ -49,6 +49,13 @@ function getThemes($mysqli, $thema_id = -1)
 }
 
 //--------------------------------------------------------
+function setLastPage($mysqli, $thema_id)
+{
+# Anzahl der Einträge in der Datenbank zu dem gewählten Thema
+$itemsCount = getItemsCount($mysqli, $thema_id);
+return ceil($itemsCount / ITEMS_PER_PAGE);
+}
+
 //--------------------------------------------------------
 
 /**
@@ -57,18 +64,26 @@ function getThemes($mysqli, $thema_id = -1)
  * @param int $thema_id Id für das vom User ausgewählte Thema
  * @return array<array> Array mit Werten zur Darstellung der Übung für Artikel
  */
-function getDataWithThemeId($mysqli, $thema_id)
+function getDataWithThemeId($mysqli, $thema_id, $page)
 {
-  $sql = "SELECT nomen, artikel, id FROM nomen WHERE thema_id = $thema_id ORDER BY id LIMIT 10";
-  $result = mysqli_query($mysqli, $sql);
+  $itemsPerPage = ITEMS_PER_PAGE;
 
-  while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = [
-      'artikel' => $row['artikel'],
-      'nomen' => $row['nomen'],
-      'id' => (int) $row['id'],
-    ];
+  if ($page > 0) {
+    $offset = ($page - 1) * $itemsPerPage;
+    $sql = "SELECT nomen, artikel, id FROM nomen WHERE thema_id = $thema_id ORDER BY id LIMIT $itemsPerPage OFFSET $offset";
+    $result = mysqli_query($mysqli, $sql);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+      $data[] = [
+        'artikel' => $row['artikel'],
+        'nomen' => $row['nomen'],
+        'id' => (int) $row['id'],
+      ];
+    }
+  } else {
+    $data[] = [];
   }
+
   return $data;
 }
 
@@ -77,31 +92,42 @@ function getDataWithThemeId($mysqli, $thema_id)
 
 
 /**
- * Summary of getNomenDataById
+ * getNomenDataById: holt einzelne Wertereihen aus der Datenbank
  * @param object $mysqli
  * @param int $id
  * @return array|bool|null
  */
 function getNomenDataById($mysqli, $id)
 {
-
   $sql = "SELECT artikel, nomen FROM nomen WHERE id = $id";
   $result = mysqli_query($mysqli, $sql);
 
-  $row = mysqli_fetch_assoc($result);
-  // echo 'row: ' . $row['artikel'];
-  // echo '<br>';
-  // echo 'row: ' . $row['nomen'];
-  // echo '<br>';
-  // var_dump($row);
-  // echo '<br>';
-
+  mysqli_num_rows($result) == 1 ? $row = mysqli_fetch_assoc($result) : $row = null;
+  // $row = mysqli_fetch_assoc($result);
   return $row;
 }
 
-// ---------------------------------------------------
+
 // ---------------------------------------------------
 
+/**
+ * getItemsCount: ermittelt die Anzahl an Einträgen 
+ * in der Nomen-Tabelle zu einem bestimmten Thema
+ * @param object $mysqli
+ * @param int $thema_id
+ * @return int
+ */
+function getItemsCount($mysqli, $thema_id) {
+
+  $sql = "SELECT COUNT(*) AS anzahl FROM nomen WHERE thema_id = $thema_id";
+
+  $result = mysqli_query($mysqli, $sql);
+
+  $row = mysqli_fetch_assoc($result);
+  return $row['anzahl'];
+}
+
+// ---------------------------------------------------
 
 /**
  * getUserInput Holt Daten aus $_POST, prüft diese, wenn sie mit 'Artikel_' beginnen;

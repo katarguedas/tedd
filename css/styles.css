@@ -235,7 +235,7 @@ width: 100%;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  height: 260px;
+  height: 240px;
 }
 
 .button-wrapper {
@@ -257,6 +257,17 @@ width: 100%;
   position:relative;
   top:1px;
 }
+
+.next-button {
+  display: flex;
+  margin: 1.0rem;
+}
+
+.arrow {
+  font-size: 1.0rem;
+  size: 1.0rem;
+}
+
 .login {
   display: flex;
   flex-direction: column;
