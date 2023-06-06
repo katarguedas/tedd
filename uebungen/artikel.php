@@ -9,9 +9,12 @@ require_once '../helpers/db-connection.php';
 
 # -------------------------------------------
 
-$headerPath = './components/header.html.twig';
-$footerPath = './components/footer.html.twig';
-
+$incPath = [
+  'incHeader' => './components/header.html.twig',
+  'incFooter' => './components/footer.html.twig',
+  'incNav' => './components/main-navigation.html.twig',
+  'incPrevNext' => './components/prev-next.html.twig'
+];
 
 # ------- Variablen fürs Template -----------
 
@@ -34,7 +37,6 @@ if (login_check()) {
 # => Themen werden aufgelistget => zweite Nav
 # -------------------------------------------------------------------
 
-
 if (empty($_GET) && empty($_POST)) {
 
   $case = 1;
@@ -45,7 +47,6 @@ if (empty($_GET) && empty($_POST)) {
 }
 
 #--------------------------------------------------------------
-
 # Fall 2:
 # Thema gewählt, jetzt werden Daten aus der Datenbank geladen
 # => die Übung startet
@@ -77,7 +78,7 @@ if (!empty($_GET) && empty($_POST)) {
     $message = 'Bitte wähle ein Thema aus';
   } else {
     # Ermittele die Anzahl der Seiten, die 'durchgeblättert' werden können
-    $lastPage = setLastPage($mysqli, $thema_id);
+    $lastPage = setLastPage($mysqli, $thema_id, 1);
   }
 
   # Daten für die Themen-Navigation aus der Datenbank holen,
@@ -94,18 +95,20 @@ if (!empty($_GET) && empty($_POST)) {
 }
 
 # -------------------------------------------------------------
-# Fall 3:
+# Fall 3 :
 # 'prüfen' Button geklickt: 
 # - selection des Users wird über POST übertragen, 
 # - im hidden input kommen die ids der aktuellen Übung,
 # => Auswertung der Daten und Darstellung des Ergebnisses für den User
+# oder Fall 4:
+# 'reset' Button geklickt:
+# - die abgebildeten Übungen sollen beibehalten werden,
+# - die User-Eingabe wird 'gelöscht' => gleiche Übung ohne Auswahl
 # -------------------------------------------------------------
 
-// if (empty($_GET) && !empty($_POST) && myPost('button', 5) === 'check') {
-if (!empty($_POST) && myPost('button', 5) === 'check') {
+if (!empty($_POST) ) {
 
-  $case = 3;
-
+  #init-Wert
   $page = 1;
 
   # Thema_id per POST empfangen
@@ -115,71 +118,40 @@ if (!empty($_POST) && myPost('button', 5) === 'check') {
   $themen = getThemes($mysqli, $thema_id);
 
   # Ermittele die Anzahl der Seiten, die 'durchgeblättert' werden können
-  $lastPage = setLastPage($mysqli, $thema_id);
+  $lastPage = setLastPage($mysqli, $thema_id, 1);
 
   # Pagenummer per POST empfangen
   $page = (int) myPost('page', 2);
-  $page < 0 ? $case = 1 : $case = 3;
-  $page > $lastPage ? $case = 1 : $case = 3;
+
+  if (myPost('button', 5) === 'check') {
+  $case = 3; 
+  }
+  if (myPost('button', 5) === 'reset') {
+  $case = 4; 
+  }
+  $page < 0 ? $case = 1 : null;
+  $page > $lastPage ? $case = 1 : null;
 
   # Prüfe die User-Eingabe für Artikel und hole sie sowie die aktuellen Artikel-Ids aus $_POST:
-  $currentValues = getUserInput();
+  $currentValues = getUserInput('artikel');
 
-  # Hole mit (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
-  foreach ($currentValues as $item) {
-    $dataFromDB = getNomenDataById($mysqli, $item['id']);
-    if ($dataFromDB !== null)  //Daten nicht manipuliert
-      $userResult = checkUserInput($item['userInput'], $dataFromDB['artikel']);
-    else
-      $userResult = false;
+    # Hole mit (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
+    foreach ($currentValues as $item) {
+      $dataFromDB = getNomenDataById($mysqli, $item['id']);
+      if ($dataFromDB !== null) 
+        $userResult = checkUserInput($item['userInput'], $dataFromDB['artikel']);
+      else
+        $userResult = false;
+  
+      $data[] = [
+        'artikel' => $dataFromDB ? $dataFromDB['artikel'] : '',
+        'nomen' => $dataFromDB ? $dataFromDB['nomen'] : '',
+        'id' => (int) $item['id'],
+        'userInput' =>  $case == 3 ? $item['userInput'] : '',
+        'result' => $case == 3 ? $userResult : ''
+      ];
+    }
 
-    $data[] = [
-      'artikel' => $dataFromDB ? $dataFromDB['artikel'] : '' ,
-      'nomen' => $dataFromDB ? $dataFromDB['nomen'] : '',
-      'id' => (int) $item['id'],
-      'userInput' => $item['userInput'],
-      'result' => $userResult
-    ];
-  }
-}
-
-# -------------------------------------------------------------
-# Fall 4:
-# 'reset' Button geklickt:
-# - die abgebildeten Übungen sollen beibehalten werden,
-# - die User-Eingabe wird 'gelöscht' => gleiche Übung ohne Auswahl
-# -------------------------------------------------------------
-
-if (empty($_GET) && !empty($_POST) && myPost('button', 5) === 'reset') {
-
-  $case = 4;
-
-  $page = 1;
-
-  $thema_id = (int) myPost('urlId', 7);
-  $themen = getThemes($mysqli, $thema_id);
-
-  # Ermittele die Anzahl der Seiten, die 'durchgeblättert' werden können
-  $lastPage = setLastPage($mysqli, $thema_id);
-
-  # Pagenummer per POST empfangen
-  $page = (int) myPost('page', 2);
-  $page < 0 ? $case = 1 : $case = 4;
-  $page > $lastPage ? $case = 1 : $case = 4;
-
-
-  # Prüfe die User-Eingabe für Artikel und hole sie sowie die aktuellen Artikel-Ids aus $_POST:
-  $currentValues = getUserInput();
-
-  # Hole mit der (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
-  foreach ($currentValues as $item) {
-    $dataFromDB = getNomenDataById($mysqli, $item['id']);
-    $data[] = [
-      'artikel' => $dataFromDB['artikel'],
-      'nomen' => $dataFromDB['nomen'],
-      'id' => (int) $item['id'],
-    ];
-  }
 }
 
 # -------------------------------------------------------------
@@ -215,8 +187,8 @@ echo $twig->render('/artikel.html.twig', [
   'username' => $username,
   'case' => $case,
   'title' => 'der, die, das',
-  'incHeader' => $headerPath,
-  'incFooter' => $footerPath,
+  'inc' => $incPath,
+  'pos' => 1,
   'themen' => $themen,
   'formAction' => $formAction,
   'options' => $options,

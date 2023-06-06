@@ -1,35 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <title>
+      {{ title }}
+    </title>
+  </head>
+  <body>
+    <div class="site-wrapper">
+      {% include (inc.incHeader) with {'username': username, 'path' : '../'} %}
+      <main>
+      {% include (inc.incNav) with {'pos': pos, 'path': ''} %} 
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="../css/styles.css">
-  <title>Singular-Plural</title>
-</head>
-
-<body>
-  <div class="site-wrapper">
-    {{include (incHeader)}}
-    <main>
-      <nav>
-        <ul class="main-navigation-ul">
-          <li class="main-navigation-li "><a href="artikel.php">DER,&nbspDIE,&nbspDAS</a></li>
-          <li class="main-navigation-li main-navigation-li-active"><a href="singular-plural.php">SINGULAR/PLURAL</a></li>
-          <li class="main-navigation-li" ><a href="lueckentexte.php">LÜCKENTEXTE</a></li>
-        </ul>
-      </nav>
-      <div>
-        <ul class="sub-navigation-ul">
-          <li class="sub-navigation-li">test</li>
-          <li class="sub-navigation-li">...</li>
-          <li class="sub-navigation-li">...</li>
-        </ul>
-
-    </main>
-    {{include (incFooter)}}
-  </div>
-</body>
-
+        <div class="content-wrapper">
+          <ul class="sub-navigation-ul">
+            {% for thema in themen %}
+              <li class="sub-navigation-li {{ thema.activeClass }}">
+                <a href="{{ thema.href }}">
+                  {{ thema.thema }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="content">
+            {% if case != 1 %}
+              <form class="article-form" method="POST" action="{{ formAction }}">
+                <div class="items-wrapper" >
+               
+                  {% for item in data %}
+                    <div class="plural-item">
+                      {% if case == 3 %}
+                        {{ item.result == true ? '<span style="color: limegreen; width: 14px" >&#10004&nbsp</span>' : '<span style="color: red; width: 14px" >&#10006&nbsp</span>' }} 
+                      {% endif %}
+                      <span >{{ item.artikel }} {{ item.nomen }} </span>  <span>&nbsp- die  
+                        <input 
+                        name="{{ 'plural_' ~ item.id }}" 
+                        value="{{item.userInput}}" 
+                        class="input-plural"
+                      >
+                      </span>
+                    </div>
+                    {% endfor %}
+                    {% for thema in themen %}
+                      {% if thema.activeClass != '' %}
+                      <input type="hidden" name="urlId" value="{{ thema.thema_id }}" >
+                      <input type="hidden" name="page" value="{{ page }}" >
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <div class="button-wrapper" >
+                    <button class="form-button" type="submit" name="button" value="check">prüfen</button>
+                    <button class="form-button" type="submit" name="button" value="reset">zurücksetzen</button>
+                    <div class="next-button">
+                    {% include (inc.incPrevNext) with {'group': themen} %}
+                    </div>
+                  </div>
+                </div>
+                
+              </form>
+            {% endif %}
+            {% if message|length > 1 %}
+              <p>{{ message }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </main>
+      {{ include (inc.incFooter) }}
+    </div>
+  </body>
 </html>

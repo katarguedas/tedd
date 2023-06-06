@@ -13,13 +13,7 @@
   <div class="site-wrapper">
   {% include (incHeader) with {'username': username, 'path' : './'} %}
     <main>
-      <nav>
-        <ul class="main-navigation-ul">
-          <li class="main-navigation-li" ><a href="uebungen/artikel.php" >DER,&nbspDIE,&nbspDAS</a></li>
-          <li class="main-navigation-li" ><a href="singular-plural.php">SINGULAR/PLURAL</a></li>
-          <li class="main-navigation-li" ><a href="lueckentexte.php">LÜCKENTEXTE</a></li>
-        </ul>
-      </nav>
+    {% include (incNav) with {'pos': pos, 'path': 'uebungen/' } %}
       <div>
       </div>
     </main>

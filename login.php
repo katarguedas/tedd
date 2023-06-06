@@ -31,7 +31,6 @@ $email = trim(substr(filter_input(INPUT_POST, 'e-mail'), 0, 50));
 $pwd = trim(substr(filter_input(INPUT_POST, 'pwd'), 0, 25));
 $button = trim(substr(filter_input(INPUT_POST, 'button'), 0, 10));
 
-var_dump($email);
 
 if ($button == 'login') {
   # E-Mail escapen 

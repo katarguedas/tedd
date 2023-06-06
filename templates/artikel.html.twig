@@ -11,21 +11,10 @@
   </head>
   <body>
     <div class="site-wrapper">
-      {% include (incHeader) with {'username': username, 'path' : '../'} %}
+      {% include (inc.incHeader) with {'username': username, 'path' : '../'} %}
       <main>
-        <nav>
-          <ul class="main-navigation-ul">
-            <li class="main-navigation-li main-navigation-li-active">
-              <a href="artikel.php">DER,&nbspDIE,&nbspDAS</a>
-            </li>
-            <li class="main-navigation-li">
-              <a href="singular-plural.php">SINGULAR/PLURAL</a>
-            </li>
-            <li class="main-navigation-li">
-              <a href="lueckentexte.php">LÜCKENTEXTE</a>
-            </li>
-          </ul>
-        </nav>
+      {% include (inc.incNav) with {'pos': pos, 'path': ''} %} 
+
         <div class="content-wrapper">
           <ul class="sub-navigation-ul">
             {% for thema in themen %}
@@ -58,7 +47,6 @@
                       {% if thema.activeClass != '' %}
                       <input type="hidden" name="urlId" value="{{ thema.thema_id }}" >
                       <input type="hidden" name="page" value="{{ page }}" >
-                      <input type="hidden" name="pageNumber" value="{{ page }}" >
                       {% endif %}
                     {% endfor %}
                   </div>
@@ -66,18 +54,7 @@
                     <button class="form-button" type="submit" name="button" value="check">prüfen</button>
                     <button class="form-button" type="submit" name="button" value="reset">zurücksetzen</button>
                     <div class="next-button">
-                    {% for thema in themen %}
-                      {% if thema.activeClass != '' %}
-                        {% set nextpage =  page + 1 %}
-                        {% set prevpage =  page - 1 %}
-                        {% if page > 1 %}
-                          <span><a class="arrow" href="{{thema.href~'&page='~prevpage}}">&#x2190; zurück </a></span>
-                        {% endif %}
-                        {% if page < lastPage %}
-                          <span><a class="arrow"  href="{{thema.href~'&page='~nextpage}}"> weiter &#x2192;</a></span>
-                        {% endif %}
-                      {% endif %}
-                    {% endfor %}
+                    {% include (inc.incPrevNext) with {'group': themen} %}
                     </div>
                   </div>
                 </div>
@@ -90,7 +67,7 @@
           </div>
         </div>
       </main>
-      {{ include (incFooter) }}
+      {{ include (inc.incFooter) }}
     </div>
   </body>
 </html>

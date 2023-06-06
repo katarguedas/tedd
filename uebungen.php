@@ -7,6 +7,7 @@ require_once './helpers/functions.php';
 $headerPath = './components/header.html.twig';
 $footerPath = './components/footer.html.twig';
 
+$navPath = './components/main-navigation.html.twig';
 #-------------------------------------------
 # User eingeloggt?'
 
@@ -27,5 +28,6 @@ echo $twig->render('uebungen.html.twig', [
   'username' => $username,
   'titel' => 'Übungen',
   'incHeader' => $headerPath,
-  'incFooter' => $footerPath
+  'incFooter' => $footerPath,
+  'incNav' => $navPath,
 ]);

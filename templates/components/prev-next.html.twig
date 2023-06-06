@@ -1,0 +1,20 @@
+{% for item in group %}
+  {% if item.activeClass != '' %}
+    {% set nextpage =  page + 1 %}
+    {% set prevpage =  page - 1 %}
+    <span class="prev-next">
+    {% if page > 1 %}
+      <a class="arrow" href="{{item.href~'&page='~prevpage}}">
+        &#x2190; zurück 
+      </a>
+    {% endif %}
+    </span>
+    <span class="prev-next">
+    {% if page < lastPage %}
+      <a class="arrow"  href="{{item.href~'&page='~nextpage}}"> 
+        weiter &#x2192;
+      </a>
+    {% endif %}
+      </span>
+  {% endif %}
+{% endfor %}
