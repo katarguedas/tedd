@@ -20,7 +20,7 @@
             {% for thema in themen %}
               <li class="sub-navigation-li {{ thema.activeClass }}">
                 <a href="{{ thema.href }}">
-                  {{ thema.thema }}
+                  {{ thema.group }}
                 </a>
               </li>
             {% endfor %}
@@ -35,7 +35,11 @@
                       {% if case == 3 %}
                         {{ item.result == true ? '<span style="color: limegreen; width: 14px" >&#10004&nbsp</span>' : '<span style="color: red; width: 14px" >&#10006&nbsp</span>' }} 
                       {% endif %}
-                      <span >{{ item.artikel }} {{ item.nomen }} </span>  <span>&nbsp- die  
+                      
+                      <span style="display:flex; align-items:center; justify-content: center;" >
+                      {{ item.artikel }} {{ item.nomen }} </span>  
+                      <span style="display:flex;align-items: center;justify-content: center;" >
+                      &nbsp- die  
                         <input 
                         name="{{ 'plural_' ~ item.id }}" 
                         value="{{item.userInput}}" 
@@ -46,7 +50,7 @@
                     {% endfor %}
                     {% for thema in themen %}
                       {% if thema.activeClass != '' %}
-                      <input type="hidden" name="urlId" value="{{ thema.thema_id }}" >
+                      <input type="hidden" name="urlId" value="{{ thema.group_id }}" >
                       <input type="hidden" name="page" value="{{ page }}" >
                       {% endif %}
                     {% endfor %}
@@ -63,7 +67,7 @@
               </form>
             {% endif %}
             {% if message|length > 1 %}
-              <p>{{ message }}</p>
+              <p class="message">&#8656;  {{ message }}</p>
             {% endif %}
           </div>
         </div>

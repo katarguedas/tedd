@@ -1,42 +1,24 @@
 <?php
 
-require_once '../config.php';
-require_once '../helpers/functions.php';
-
-# ---- Datenbankverbindung ------------------
-
-require_once '../helpers/db-connection.php';
-
+require_once 'include/loadFiles.php';
 
 # ------- Variablen fürs Template -----------
 
-$formAction = $_SERVER['SCRIPT_NAME'];
-
 $declinations = [
-  'der' => ['--','der', 'des', 'den', 'dem'],
-  'das' => ['--','das', 'des', 'dem'],
-  'die' => ['--','die', 'der'],
-  'ohne' => ['--','der', 'das', 'den', 'die'],
-  'plural' => '--',['die', 'der', 'den'],
-  'ein' => ['--','ein', 'eines', 'einem', 'einen'],
-  'eine' => ['--','eine', 'einer']
-
+  'der' => ['--', 'der', 'des', 'den', 'dem'],
+  'das' => ['--', 'das', 'des', 'dem'],
+  'die' => ['--', 'die', 'der'],
+  'ohne' => ['--', 'der', 'das', 'den', 'die'],
+  'plural' => '--',
+  ['die', 'der', 'den'],
+  'ein' => ['--', 'ein', 'eines', 'einem', 'einen'],
+  'eine' => ['--', 'eine', 'einer']
 ];
 
+$groupTableName = 'kategorien';
+$pos = 3;
 
-$case = 0;
-$message = '';
-$page = 0;
-$lastPage = 0;
-
-$incPath = [
-  'incHeader' => './components/header.html.twig',
-  'incFooter' => './components/footer.html.twig',
-  'incNav' => './components/main-navigation.html.twig',
-  'incPrevNext' => './components/prev-next.html.twig'
-];
-
-# -------------------------------------------
+# -----------------------------
 
 $username = '';
 if (login_check()) {
@@ -52,56 +34,29 @@ if (login_check()) {
 
 if (empty($_GET) && empty($_POST)) {
 
-  $case = 1;
-
   # --- Daten für die Kategorien aus der Datenbank holen
-  $categories = getCategories($mysqli);
+  $groups = getGroups($mysqli, $groupTableName);
   $data[] = [];
 }
 
 #--------------------------------------------------------------
 # Fall 2:
-# Kategorie gewählt, jetzt werden Daten aus der Datenbank geladen
+# Kategorie(group) gewählt, jetzt werden Daten aus der Datenbank geladen
 # => die Übung startet
 # -------------------------------------------------------------
 # -- Daten per GET empfangen
 
 if (!empty($_GET) && empty($_POST)) {
 
-  $case = 2;
-
-  $page = 1;
-  $options;
-
-  # neue Seitennummer per GET empfangen?
-  (isset($_GET['page']) && $_GET['page'] > 0) ? $page = (int) filter_input(INPUT_GET, 'page') : $page = 1;
-
-  # ist pagenummer kleiner 0: wird formular nicht dargestellt
-  $page < 0 ? $case = 1 : $case = 2;
-
-  # Thema-id per GET empfangen
-  $category_id = (int) filter_input(INPUT_GET, 'kategorie_id');
-
-  # Hashwert (Prüfsumme) 
-  $gethash = filter_input(INPUT_GET, 'hash');
-
-  # check, ob category-id nicht manipuliert wurde
-  if (isset($category_id) && hash(MY_ALGO, $category_id . MY_SALTY) != $gethash) {
-    $category_id = null;
-    $case = 1; // damit wird das Formular nicht abgebildet
-    $message = 'Bitte wähle eine Kategorie aus';
-  } else {
-    # Ermittele die Anzahl der Seiten, die 'durchgeblättert' werden können
-    $lastPage = setLastPage($mysqli, $category_id, 2);
-  }
+  include 'include/prepareExcercise.php';
 
   # Daten für die Kategorien aus der Datenbank holen,
-  # wenn $category_id gesetzt, wird die gewählte Kategorie gehighlighted
-  $categories = getCategories($mysqli, $category_id);
+  # wenn $group_id gesetzt, wird die gewählte group gehighlighted
+  $groups = getGroups($mysqli, $groupTableName, $group_id);
 
   # Daten für die Übung aus der Datenbank holen
-  if (isset($category_id) && ($page <= $lastPage) && ($lastPage > 0)) {
-    $data = getDataWithCategoryId($mysqli, $category_id, $page);
+  if (isset($group_id) && ($page <= $lastPage) && ($lastPage > 0)) {
+    $data = getDataWithCategoryId($mysqli, $group_id, $page);
   } else {
     $data[] = [];
     $case = 1;
@@ -122,34 +77,11 @@ if (!empty($_GET) && empty($_POST)) {
 
 if (!empty($_POST)) {
 
-  #init-Wert
-  $page = 1;
+  require_once 'include/handleExcercise.php';
 
-  # Thema_id per POST empfangen
-  $category_id = (int) myPost('urlId', 7);
-
-  # Daten für die Themen-Navigation aus der Datenbank holen,
-  # wenn $thema_id gesetzt, wird das gewählte Thema gehighlighted
-  $categories = getCategories($mysqli, $category_id);
-
-  # Ermittele die Anzahl der Seiten, die 'durchgeblättert' werden können
-  $lastPage = setLastPage($mysqli, $category_id, 2);
-
-  # Pagenummer per POST empfangen
-  $page = (int) myPost('page', 2);
-
-  if (myPost('button', 5) === 'check') {
-    $case = 3;
-  }
-  if (myPost('button', 5) === 'reset') {
-    $case = 4;
-  }
-  $page < 0 ? $case = 1 : null;
-  $page > $lastPage ? $case = 1 : null;
-
-  # Prüfe die User-Eingabe für Artikel und hole sie sowie die aktuellen Artikel-Ids aus $_POST:
-  $currentValues = getUserInput('artikel');
-
+    # Prüfe die User-Eingabe für Artikel und hole sie sowie die aktuellen Artikel-Ids aus $_POST:
+    $currentValues = getUserInput('artikel');
+    
   # Hole mit (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
   foreach ($currentValues as $item) {
     $dataFromDB = getTextDataById($mysqli, $item['id']);
@@ -168,20 +100,12 @@ if (!empty($_POST)) {
     ];
   }
 }
-
 # -------------------------------------------------------------
 # Fall x:
 # keiner der vier oben genannten fälle trifft zu
-# => folgende Daten werden gesetzt, um die Themen-Navigation 
-# ohne Formular abzubilden
+# => es wird nur die linke Navigation der Themen/Kategorien dargestellt
 
-
-if ($case !== 1 && $case !== 2 && $case !== 3 && $case !== 4) {
-  $themen = getThemes($mysqli);
-  $data[] = [];
-  $case = 1;
-  $message = 'Bitte wähle ein Thema aus.';
-}
+require_once 'include/caseZero.php';
 
 # -------------------------------------------
 
@@ -201,13 +125,14 @@ $twig = new \Twig\Environment($loader);
 
 echo $twig->render('/lueckentexte.html.twig', [
   'username' => $username,
-  'titel' => 'Lückentexte',
+  'title' => 'Lückentexte',
   'inc' => $incPath,
-  'pos' => 3,
-  'categories' => $categories,
+  'pos' => $pos,
+  'categories' => $groups,
   'data' => $data,
   'declinations' => $declinations,
   'case' => $case,
+  'message' => $message,
   'page' => $page,
   'lastPage' => $lastPage
 ]);

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" type="text/css" href="../css/styles.css">
-  <title>{{titel}}</title>
+  <title>{{title}}</title>
 </head>
 
 <body>
@@ -20,7 +20,7 @@
         {% for category in categories %}
           <li class="sub-navigation-li sub-navigation-li-width {{ category.activeClass }}">
             <a href="{{ category.href }}">
-              {{ category.category }}
+              {{ category.group }}
             </a>
           </li>
         {% endfor %}
@@ -33,7 +33,18 @@
                 {% for item in data %}
                   <div class="article-item">
                     {% if case == 3 %}
-                      {{ item.result == true ? '<span style="color: limegreen; width: 14px" >&#10004</span>' : '<span style="color: red; width: 14px" >&#10006</span>' }} 
+                      {{ item.result == true ? 
+                      '<span 
+                        style="color: limegreen; 
+                        margin-right: 0.5rem;
+                        width: 14px;" >
+                      &#10004
+                      </span>' : '<span 
+                        style="color: red; 
+                        margin-right: 0.5rem; 
+                        width: 14px" >
+                        &#10006
+                      </span>' }} 
                     {% endif %}
                     {{ item.textPart1 }}
                     <select class="select" id="artikel" name="{{ 'artikel_' ~ item.id }}">
@@ -48,7 +59,7 @@
 
                 {% for category in categories %}
                   {% if category.activeClass != '' %}
-                    <input type="hidden" name="urlId" value="{{ category.category_id }}" >
+                    <input type="hidden" name="urlId" value="{{ category.group_id }}" >
                     <input type="hidden" name="page" value="{{ page }}" >
                   {% endif %}
                 {% endfor %}
@@ -64,7 +75,7 @@
           </form>
           {% endif %}
           {% if message|length > 1 %}
-           <p>{{ message }}</p>
+           <p class="message">&#8656;  {{ message }}</p>
           {% endif %}
         </div>
       </div>

@@ -1,137 +1,14 @@
 <?php
+
+/**
+ * liest einen POST-Parameter aus und gibt ihn gefiltert zurück
+ * @param string $name Name des POST-Parameters
+ * @param int $laenge [optional] Anzahl der Zeichen
+ * @return string der gefilterte Wert
+ */
 function myPost(string $name, int $length = 50)
 {
   return trim(substr(filter_input(INPUT_POST, $name), 0, $length));
-}
-
-//-------------------------------------------------------------------
-
-/**
- * getThemes: holt die verfügbaren Themen (Kategorien) aus der Datenbank,
- * um sie in der zweiten Navigation abzubilden 
- * @param object $mysqli
- * @param int $thema_id optional, wenn != -1, wird das vom User ausgewählte Thema hervorgehoben
- * @return array<array> Array mit Werten zur Darstellung der zweiten Navigazion
- */
-function getThemes($mysqli, $thema_id = -1)
-{
-  # ---- Themen ids aus der Datenbank auslesen ------------
-
-  $sql = "SELECT thema, id FROM thema ORDER BY id";
-  $result = mysqli_query($mysqli, $sql);
-
-  while ($row = mysqli_fetch_assoc($result)) {
-
-    # ausgewähltes Thema bekommt zusötzliche css-Klasse
-
-    if ($thema_id !== -1) {
-      $activeClass = ($thema_id == $row['id']) ? 'sub-navigation-li-active' : '';
-    } else {
-      $activeClass = '';
-    }
-
-    # Hash-Wert aus thema_id generieren
-    $hash = hash(MY_ALGO, $row['id'] . MY_SALT);
-
-    # ---mehrdimensionaler Array für die Navigation ---------
-    $themen[] = [
-      'thema' => $row['thema'],
-      'thema_id' => $row['id'],
-      'href' => $_SERVER['SCRIPT_NAME'] . '?thema_id=' . $row['id'] . '&hash=' . $hash,
-      'activeClass' => $activeClass
-    ];
-  }
-
-  # $result freigeben 
-  mysqli_free_result($result);
-
-  return $themen;
-}
-
-//--------------------------------------------------------
-function setLastPage($mysqli, $id, $tb)
-{
-  # Anzahl der Einträge in der Datenbank zu dem gewählten Thema
-  $itemsCount = getItemsCount($mysqli, $id, $tb);
-  if ($tb === 1)
-    return ceil($itemsCount / ITEMS_PER_PAGE);
-  if ($tb === 2)
-    return ceil($itemsCount / SETS_PER_PAGE);
-}
-
-//--------------------------------------------------------
-
-/**
- * getDataWithThemeId: holt für ein ausgewähltes Thema Daten aus der Datenbank, Tabelle nomen
- * @param object $mysqli
- * @param int $thema_id Id für das vom User ausgewählte Thema
- * @return array<array> Array mit Werten zur Darstellung der Übung für Artikel
- */
-function getDataWithThemeId($mysqli, $thema_id, $page)
-{
-  $itemsPerPage = ITEMS_PER_PAGE;
-
-  if ($page > 0) {
-    $offset = ($page - 1) * $itemsPerPage;
-    $sql = "SELECT nomen, artikel, plural, id FROM nomen WHERE thema_id = $thema_id ORDER BY id LIMIT $itemsPerPage OFFSET $offset";
-    $result = mysqli_query($mysqli, $sql);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-      $data[] = [
-        'artikel' => $row['artikel'],
-        'nomen' => $row['nomen'],
-        'plural' => $row['plural'],
-        'id' => (int) $row['id'],
-      ];
-    }
-  } else {
-    $data[] = [];
-  }
-
-  return $data;
-}
-
-//--------------------------------------------------------
-//--------------------------------------------------------
-
-
-/**
- * getNomenDataById: holt einzelne Wertereihen aus der Datenbank
- * @param object $mysqli
- * @param int $id
- * @return array|bool|null
- */
-function getNomenDataById($mysqli, $id)
-{
-  $sql = "SELECT artikel, nomen, plural FROM nomen WHERE id = $id";
-  $result = mysqli_query($mysqli, $sql);
-
-  mysqli_num_rows($result) == 1 ? $row = mysqli_fetch_assoc($result) : $row = null;
-  // $row = mysqli_fetch_assoc($result);
-  return $row;
-}
-
-
-// ---------------------------------------------------
-
-/**
- * getItemsCount: ermittelt die Anzahl an Einträgen 
- * in der Nomen-Tabelle zu einem bestimmten Thema
- * @param object $mysqli
- * @param int $thema_id
- * @return int
- */
-function getItemsCount($mysqli, $id, $tb)
-{
-  if ($tb === 1)
-    $sql = "SELECT COUNT(*) AS anzahl FROM nomen WHERE thema_id = $id";
-  if ($tb === 2)
-    $sql = "SELECT COUNT(*) AS anzahl FROM artikeltexte WHERE kategorie_id = $id";
-
-  $result = mysqli_query($mysqli, $sql);
-  $row = mysqli_fetch_assoc($result);
-  return $row['anzahl'];
-
 }
 
 // ---------------------------------------------------
@@ -145,21 +22,12 @@ function getUserInput($startString)
 {
   foreach ($_POST as $key => $value) {
     $startStringLength = strlen($startString) + 1;
-    // echo '<br>';
-    // echo $startStringLength;
-    // echo '<br>';
-    // echo 'key: '.$key;
-    // echo '<br>';
-    // echo ' value:  '.$value;
-    // echo '<br>';
-    // echo str_starts_with($key, $startString.'_');
-    // echo '<br>';
-    // is_int((int) substr($key, $startStringLength));
-    // echo '<br>';
-    
-    if (str_starts_with($key, $startString.'_') && 
-      is_int((int) substr($key, $startStringLength)) && 
-        ((int) substr($key, $startStringLength )) > 0) {
+
+    if (
+      str_starts_with($key, $startString . '_') &&
+      is_int((int) substr($key, $startStringLength)) &&
+      ((int) substr($key, $startStringLength)) > 0
+    ) {
       $currentValues[] = [
         'id' => (int) substr($key, $startStringLength),
         'userInput' => $value
@@ -169,8 +37,6 @@ function getUserInput($startString)
   return $currentValues;
 }
 
-
-// ---------------------------------------------------
 // ---------------------------------------------------
 
 /**
@@ -186,6 +52,8 @@ function checkUserInput($userInput, $solution)
   else
     return false;
 }
+
+// ---------------------------------------------------
 
 
 function login_check()
@@ -209,79 +77,4 @@ function logout()
 
   #ggf. session-cookie löschen und zwar so wie er gesetzt wurde(Path)
   setcookie('PHPSESSID', '', 0, '/');
-
-}
-
-function getCategories($mysqli, $id = -1)
-{
-
-  # ---- Themen ids aus der Datenbank auslesen ------------
-
-  $sql = "SELECT kategorie, id FROM kategorien ORDER BY id";
-  $result = mysqli_query($mysqli, $sql);
-
-  while ($row = mysqli_fetch_assoc($result)) {
-
-    # ausgewählte Kategorie bekommt zusötzliche css-Klasse
-    if ($id !== -1) {
-      $activeClass = ($id == $row['id']) ? 'sub-navigation-li-active' : '';
-    } else {
-      $activeClass = '';
-    }
-
-    # Hash-Wert aus thema_id generieren
-    $hash = hash(MY_ALGO, $row['id'] . MY_SALTY);
-
-    # ---mehrdimensionaler Array für die Navigation ---------
-    $categories[] = [
-      'category' => $row['kategorie'],
-      'category_id' => $row['id'],
-      'href' => $_SERVER['SCRIPT_NAME'] . '?kategorie_id=' . $row['id'] . '&hash=' . $hash,
-      'activeClass' => $activeClass
-    ];
-    // var_dump($categories);
-  }
-
-  # $result freigeben 
-  mysqli_free_result($result);
-
-  return $categories;
-}
-
-
-
-function getDataWithCategoryId($mysqli, $id, $page)
-{
-  $setsPerPage = SETS_PER_PAGE;
-
-  if ($page > 0) {
-    $offset = ($page - 1) * $setsPerPage;
-    $sql = "SELECT textteil1, textteil2, textteil3, loesung, id FROM artikeltexte WHERE kategorie_id = $id ORDER BY id LIMIT $setsPerPage OFFSET $offset";
-    $result = mysqli_query($mysqli, $sql);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-      $data[] = [
-        'textPart1' => $row['textteil1'],
-        'textPart2' => $row['textteil2'],
-        'textPart3' => $row['textteil3'],
-        'solution' => $row['loesung'],
-        'id' => (int) $row['id'],
-      ];
-    }
-  } else {
-    $data[] = [];
-  }
-  return $data;
-}
-
-
-
-function getTextDataById($mysqli, $id)
-{
-  $sql = "SELECT textteil1, textteil2, textteil3, loesung, id FROM artikeltexte WHERE id = $id";
-  $result = mysqli_query($mysqli, $sql);
-
-  mysqli_num_rows($result) == 1 ? $row = mysqli_fetch_assoc($result) : $row = null;
-  return $row;
-
 }

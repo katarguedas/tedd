@@ -15,6 +15,7 @@ $footerPath = './components/footer.html.twig';
 # ------- Variablen fürs Template -----------
 
 $formAction = $_SERVER['SCRIPT_NAME'];
+$message ='';
 
 #------------------
 # User eingeloggt?'
@@ -57,6 +58,8 @@ if ($button == 'login') {
     # Weiterleiten zu den Übungen
     header('Location: uebungen.php');
 
+  } else {
+    $message = 'Anmeldedaten falsch. Bitte noch mal versuchen.';
   }
 }
 
@@ -74,5 +77,6 @@ echo $twig->render('login.html.twig', [
   'titel' => 'Login',
   'incHeader' => $headerPath,
   'incFooter' => $footerPath,
-  'formAction' => $formAction
+  'formAction' => $formAction,
+  'message' => $message,
 ]);

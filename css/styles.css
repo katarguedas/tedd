@@ -172,7 +172,7 @@ nav {
 
 .content-wrapper {
   display: flex;
-  flex-direction: row;
+  /* flex-direction: row; */
 }
 
 .sub-navigation-ul {
@@ -218,19 +218,30 @@ nav {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-
   margin: 2rem;
   align-items: center;
 }
+.message {
+  font-size: 1.3rem;
+  color: var(--dark-blue)
+}
+
 .article-item {
   margin: 0.75rem 2.75rem;
   display: inline-flex;
   /* justify-content: space-between; */
 }
 .plural-item {
-  margin: 0.75rem 2.75rem;
+  margin: 0.55rem 2.25rem;
   display: inline-flex;
   justify-content: space-between;
+  align-items: baseline;
+}
+.plural-item-cor {
+  margin: 0.55rem 2.25rem;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .select {
@@ -246,7 +257,7 @@ nav {
 }
 
 .input-plural {
-  padding: 0.15rem 0.5rem;
+  padding: 0.15rem 0.35rem;
   margin-left: 0.25rem;
 }
 
