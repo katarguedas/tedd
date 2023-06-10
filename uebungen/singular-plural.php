@@ -6,13 +6,15 @@ require_once 'include/loadFiles.php';
 
 $groupTableName = 'thema';
 $pos = 2;
+$tb = 1;
 
 #---------------------------
+# User eingeloggt?'
+
 $username = '';
 if (login_check()) {
   $username = $_SESSION['name'];
 }
-
 # -------------------------------------------
 
 # Fall 1:
@@ -62,6 +64,9 @@ if (!empty($_GET) && empty($_POST)) {
 # 'reset' Button geklickt:
 # - die abgebildeten Übungen sollen beibehalten werden,
 # - die User-Eingabe wird 'gelöscht' => gleiche Übung ohne Auswahl
+# oder Fall 5 bei Singular/Plural Übung mit Inputfeldern:
+# 'Lösung' Button geklickt:
+# - in die Inputfelder werden die Lösungen aus der Datenbank eingetragen,
 # -------------------------------------------------------------
 
 if (!empty($_POST)) {
@@ -84,6 +89,7 @@ if (!empty($_POST)) {
       'nomen' => $dataFromDB ? $dataFromDB['nomen'] : '',
       'id' => (int) $item['id'],
       'userInput' => $case == 3 ? $item['userInput'] : '',
+      'solution' => $case == 5 ? $dataFromDB['plural'] : '',
       'result' => $case == 3 ? $userResult : ''
     ];
   }
@@ -91,7 +97,7 @@ if (!empty($_POST)) {
 
 # -------------------------------------------------------------
 # Fall x:
-# keiner der vier oben genannten fälle trifft zu
+# keiner der fünf oben genannten fälle trifft zu
 # => es wird nur die linke Navigation der Themen/Kategorien dargestellt
 
 require_once 'include/caseZero.php';
@@ -106,7 +112,6 @@ mysqli_close($mysqli);
 
 $loader = new \Twig\Loader\FilesystemLoader('../templates');
 $twig = new \Twig\Environment($loader);
-
 
 #-------- Template rendern ------------------
 

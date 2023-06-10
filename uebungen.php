@@ -9,7 +9,6 @@ $footerPath = './components/footer.html.twig';
 
 $navPath = './components/main-navigation.html.twig';
 #-------------------------------------------
-// 
 
 # User eingeloggt?'
 

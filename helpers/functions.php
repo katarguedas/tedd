@@ -32,8 +32,9 @@ function getUserInput($startString)
         'id' => (int) substr($key, $startStringLength),
         'userInput' => $value
       ];
-    }
+    } 
   }
+
   return $currentValues;
 }
 
@@ -56,6 +57,10 @@ function checkUserInput($userInput, $solution)
 // ---------------------------------------------------
 
 
+/**
+ * login_check: prüft, ob user eingeloggt ist
+ * @return bool
+ */
 function login_check()
 {
   session_start();
@@ -65,7 +70,7 @@ function login_check()
     return true;
   }
 }
-
+// ---------------------------------------------------
 
 function logout()
 {

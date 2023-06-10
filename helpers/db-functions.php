@@ -1,56 +1,55 @@
 <?php
 
 /**
- * getGroups: Verfügbare Themen/Kategorien-Groupen bzw. deren Ids für Lückentexte aus der Datenbank holen
+ * getGroups: Verfügbare Themen/Kategorien bzw. deren Ids aus der Datenbank holen
  * @param object $mysqli
- * @param int $id
- * @return array<array>
+ * @param int $id optional, wenn nichts übergeben wird, wird keine Kategorie gehighlighted
+ * @return array<array> array mit den verfügbaren Themen/Kategorien
  */
+function getGroups($mysqli, $tableName, $id = -1)
+{
+  $tableName === 'kategorien' ? $value = 'kategorie' : null;
+  $tableName === 'thema' ? $value = 'thema' : null;
 
- function getGroups($mysqli, $tableName, $id = -1)
- {
-   $tableName === 'kategorien' ? $value = 'kategorie' : null;
-   $tableName === 'thema' ? $value = 'thema' : null;
- 
-   # ---- Themen ids aus der Datenbank auslesen ------------
-   $sql = "SELECT $value, id FROM $tableName ORDER BY id";
- 
-   try {
-     $result = mysqli_query($mysqli, $sql);
- 
-     while ($row = mysqli_fetch_assoc($result)) {
- 
-       # ausgewählte Kategorie bekommt zusötzliche css-Klasse
-       if ($id !== -1) {
-         $activeClass = ($id == $row['id']) ? 'sub-navigation-li-active' : '';
-       } else {
-         $activeClass = '';
-       }
- 
-       # Hash-Wert aus thema_id generieren
-       $hash = hash(MY_ALGO, $row['id'] . MY_SALT);
- 
-       # ---mehrdimensionaler Array für die Navigation ---------
-       $groups[] = [
-         'group' => $row[$value],
-         'group_id' => $row['id'],
-         'href' => $_SERVER['SCRIPT_NAME'] . '?group_id=' . $row['id'] . '&hash=' . $hash,
-         'activeClass' => $activeClass
-       ];
-     }
- 
-     # $result freigeben 
-     mysqli_free_result($result);
- 
-     return $groups;
-   } catch (Exception) {
-     echo 'Daten konnten nicht geladen werden';
-     return [];
-   }
- }
- 
+  # ---- Themen ids aus der Datenbank auslesen ------------
+  $sql = "SELECT $value, id FROM $tableName ORDER BY id";
+
+  try {
+    $result = mysqli_query($mysqli, $sql);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+
+      # ausgewählte Kategorie bekommt zusötzliche css-Klasse
+      if ($id !== -1) {
+        $activeClass = ($id == $row['id']) ? 'sub-navigation-li-active' : '';
+      } else {
+        $activeClass = '';
+      }
+
+      # Hash-Wert aus thema_id generieren
+      $hash = hash(MY_ALGO, $row['id'] . MY_SALT);
+
+      # ---mehrdimensionaler Array für die Navigation ---------
+      $groups[] = [
+        'group' => $row[$value],
+        'group_id' => $row['id'],
+        'href' => $_SERVER['SCRIPT_NAME'] . '?group_id=' . $row['id'] . '&hash=' . $hash,
+        'activeClass' => $activeClass
+      ];
+    }
+
+    # $result freigeben 
+    mysqli_free_result($result);
+
+    return $groups;
+  } catch (Exception) {
+    echo 'Daten konnten nicht geladen werden';
+    return [];
+  }
+}
+
 #--------------------------------------------------------------------------
- 
+
 /**
  * getDataWithThemeId: holt für ein ausgewähltes Thema Daten aus der Datenbank, Tabelle nomen
  * @param object $mysqli
@@ -63,33 +62,35 @@ function getDataWithThemeId($mysqli, $id, $page)
   $itemsPerPage = ITEMS_PER_PAGE;
 
   if ($page > 0) {
-    $offset = ($page - 1) * $itemsPerPage;
-    $sql = "SELECT nomen, artikel, plural, id FROM nomen WHERE thema_id = $id ORDER BY id LIMIT $itemsPerPage OFFSET $offset";
-    $result = mysqli_query($mysqli, $sql);
+    try {
+      $offset = ($page - 1) * $itemsPerPage;
+      $sql = "SELECT nomen, artikel, plural, id FROM nomen WHERE thema_id = $id ORDER BY id LIMIT $itemsPerPage OFFSET $offset";
+      $result = mysqli_query($mysqli, $sql);
 
-// hier Unterschiede!!!!!!
-    while ($row = mysqli_fetch_assoc($result)) {
-      $data[] = [
-        'artikel' => $row['artikel'],
-        'nomen' => $row['nomen'],
-        'plural' => $row['plural'],
-        'id' => (int) $row['id'],
-      ];
+      // hier Unterschiede!!!!!!
+      while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = [
+          'artikel' => $row['artikel'],
+          'nomen' => $row['nomen'],
+          'plural' => $row['plural'],
+          'id' => (int) $row['id'],
+        ];
+      }
+    } catch (Exception) {
+      echo 'Daten konnten nicht geladen werden';
+      $data[] = [];
+      //
     }
-  } else {
-    $data[] = [];
-  }
-
+  } 
   return $data;
 }
-
 
 #---------------------------------------------------------------
 
 /**
  * getDataWithCategoryId: holt Daten für Lückentexte aus der Datenbank
  * @param object $mysqli
- * @param int $id
+ * @param int $id Id der gewählten Kategorie
  * @param int $page
  * @return array
  */
@@ -121,19 +122,24 @@ function getDataWithCategoryId($mysqli, $id, $page)
 #---------------------------------------------------------------
 
 /**
- * getNomenDataById: holt einzelne Wertereihen aus der Datenbank
+ * getNomenDataById: holt einzelne Wertereihen für ARtikelübungen aus der Datenbank
  * @param object $mysqli
- * @param int $id
+ * @param int $id id der zu holenden Daten
  * @return array|bool|null
  */
 function getNomenDataById($mysqli, $id)
 {
+  try{
   $sql = "SELECT artikel, nomen, plural FROM nomen WHERE id = $id";
   $result = mysqli_query($mysqli, $sql);
 
   mysqli_num_rows($result) == 1 ? $row = mysqli_fetch_assoc($result) : $row = null;
   // $row = mysqli_fetch_assoc($result);
   return $row;
+} catch (Exception) {
+  //
+  return $row = null;
+}
 }
 
 // ---------------------------------------------------
@@ -163,6 +169,7 @@ function getTextDataById($mysqli, $id)
 /**
  * getItemsCount: ermittelt die Anzahl an Einträgen 
  * in der Nomen-Tabelle zu einem bestimmten Thema
+ * Damit wird später ermittelt, wie viele 'pages' zum 'durchblättern' existieren
  * @param object $mysqli
  * @param int $id
  * @param int $tb

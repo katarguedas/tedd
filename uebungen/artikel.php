@@ -9,7 +9,9 @@ $options = ['--', 'der', 'die', 'das'];
 $groupTableName = 'thema';
 $pos = 1;
 $username = '';
+$tb = 1;
 #------------------
+# User eingeloggt?'
 
 if (login_check()) {
   $username = $_SESSION['name'];
@@ -67,21 +69,26 @@ if (!empty($_POST)) {
   # Prüfe die User-Eingabe für Artikel und hole sie sowie die aktuellen Artikel-Ids aus $_POST:
   $currentValues = getUserInput('artikel');
 
-  # Hole mit (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
-  foreach ($currentValues as $item) {
-    $dataFromDB = getNomenDataById($mysqli, $item['id']);
-    if ($dataFromDB !== null)
-      $userResult = checkUserInput($item['userInput'], $dataFromDB['artikel']);
-    else
-      $userResult = false;
+  if (empty($currentValues)) {
+    $data[] = [];
+    $case = 1;
+  } else {
+    # Hole mit (POST)-Id Daten aus der Datenbank und vergleiche sie mit dem User-Input
+    foreach ($currentValues as $item) {
+      $dataFromDB = getNomenDataById($mysqli, $item['id']);
+      if ($dataFromDB !== null)
+        $userResult = checkUserInput($item['userInput'], $dataFromDB['artikel']);
+      else
+        $userResult = false;
 
-    $data[] = [
-      'artikel' => $dataFromDB ? $dataFromDB['artikel'] : '',
-      'nomen' => $dataFromDB ? $dataFromDB['nomen'] : '',
-      'id' => (int) $item['id'],
-      'userInput' => $case == 3 ? $item['userInput'] : '',
-      'result' => $case == 3 ? $userResult : ''
-    ];
+      $data[] = [
+        'artikel' => $dataFromDB ? $dataFromDB['artikel'] : '',
+        'nomen' => $dataFromDB ? $dataFromDB['nomen'] : '',
+        'id' => (int) $item['id'],
+        'userInput' => $case == 3 ? $item['userInput'] : '',
+        'result' => $case == 3 ? $userResult : ''
+      ];
+    }
   }
 }
 

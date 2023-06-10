@@ -24,7 +24,6 @@ if (!empty($_GET) && empty($_POST)) {
     $message = 'Bitte wähle ein Thema aus';
   } else {
     # Ermittele die Anzahl der Seiten, die 'durchgeblättert' werden können
-    $lastPage = setLastPage($mysqli, $group_id, 1);
+    $lastPage = setLastPage($mysqli, $group_id, $tb);
   }
-
 }

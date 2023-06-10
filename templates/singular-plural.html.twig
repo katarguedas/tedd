@@ -29,20 +29,19 @@
             {% if case != 1 %}
               <form class="article-form" method="POST" action="{{ formAction }}">
                 <div class="items-wrapper" >
-               
                   {% for item in data %}
                     <div class="plural-item">
                       {% if case == 3 %}
-                        {{ item.result == true ? '<span style="color: limegreen; width: 14px" >&#10004&nbsp</span>' : '<span style="color: red; width: 14px" >&#10006&nbsp</span>' }} 
+                        {{ item.result == true ? 
+                        '<span style="color: limegreen; width: 14px" >&#10004&nbsp</span>' : '<span style="color: red; width: 14px" >&#10006&nbsp</span>' }} 
                       {% endif %}
-                      
                       <span style="display:flex; align-items:center; justify-content: center;" >
                       {{ item.artikel }} {{ item.nomen }} </span>  
                       <span style="display:flex;align-items: center;justify-content: center;" >
                       &nbsp- die  
                         <input 
                         name="{{ 'plural_' ~ item.id }}" 
-                        value="{{item.userInput}}" 
+                        value="{{ case == 5 ? item.solution : item.userInput}}" 
                         class="input-plural"
                       >
                       </span>
@@ -58,12 +57,12 @@
                   <div class="button-wrapper" >
                     <button class="form-button" type="submit" name="button" value="check">prüfen</button>
                     <button class="form-button" type="submit" name="button" value="reset">zurücksetzen</button>
+                    <button class="form-button" type="submit" name="button" value="solution">Lösung</button>
                     <div class="next-button">
                     {% include (inc.incPrevNext) with {'group': themen} %}
                     </div>
                   </div>
-                </div>
-                
+                </div>  
               </form>
             {% endif %}
             {% if message|length > 1 %}

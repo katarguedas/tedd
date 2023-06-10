@@ -13,8 +13,7 @@
   <div class="site-wrapper">
       {% include (inc.incHeader) with {'username': username, 'path' : '../'} %}
     <main>
-      {% include (inc.incNav) with {'pos': pos, 'path': ''} %}
-      
+      {% include (inc.incNav) with {'pos': pos, 'path': ''} %} 
       <div class="content-wrapper">
         <ul class="sub-navigation-ul">
         {% for category in categories %}
@@ -26,7 +25,6 @@
         {% endfor %}
         </ul>
         <div class="content">
-       
           {% if case != 1 %}
             <form class="article-form" method="POST" action="{{ formAction }}">
               <div class="items-wrapper" > 
@@ -56,7 +54,6 @@
                     <span class="nomen-item">{{ item.textPart3 }}</span>
                   </div>
                 {% endfor %}
-
                 {% for category in categories %}
                   {% if category.activeClass != '' %}
                     <input type="hidden" name="urlId" value="{{ category.group_id }}" >

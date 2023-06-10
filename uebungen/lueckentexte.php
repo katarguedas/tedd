@@ -17,8 +17,10 @@ $declinations = [
 
 $groupTableName = 'kategorien';
 $pos = 3;
+$tb = 2;
 
 # -----------------------------
+# User eingeloggt?'
 
 $username = '';
 if (login_check()) {
@@ -26,7 +28,6 @@ if (login_check()) {
 }
 
 # -------------------------------------------
-
 # Fall 1:
 # aller erster Seitenaufruf, noch keine Auswahl einer Kategorie erfolgt
 # => Kategorien werden aufgelistget => zweite Nav
@@ -106,8 +107,6 @@ if (!empty($_POST)) {
 # => es wird nur die linke Navigation der Themen/Kategorien dargestellt
 
 require_once 'include/caseZero.php';
-
-# -------------------------------------------
 
 
 # --- Datenbankverbindung schließen --------

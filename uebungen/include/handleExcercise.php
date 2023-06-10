@@ -10,7 +10,7 @@
   $groups = getGroups($mysqli, $groupTableName, $group_id);
 
   # Ermittele die Anzahl der Seiten, die 'durchgeblättert' werden können
-  $lastPage = setLastPage($mysqli, $group_id, 1);
+  $lastPage = setLastPage($mysqli, $group_id, $tb);
 
   # Pagenummer per POST empfangen
   $page = (int) myPost('page', 2);
@@ -20,6 +20,9 @@
   }
   if (myPost('button', 5) === 'reset') {
     $case = 4;
+  }
+  if (myPost('button', 8) === 'solution') {
+    $case = 5;
   }
   $page < 0 ? $case = 1 : null;
   $page > $lastPage ? $case = 1 : null;
